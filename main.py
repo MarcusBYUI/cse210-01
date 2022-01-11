@@ -1,39 +1,36 @@
 from combinations import by_three, by_four, by_five, by_six
 import time
 import os
+import random
 
 class frame:
     
-    def __init__(self):
+    def __init__(self, number, character):
+        self.character = character
+        self.number = number
+        
         self.rows = []
         self.columns = []
         self.count = 0
+        
         
         self.user = []
         self.computer = []
         
         
-    def layout(self, number, character):
+    def layout(self):
         """The layout funtion generates a board for the user bassed on the size the user selects"""
-        self.character = character
-        if number >= 3 and number <= 6:
-            self.number = number
-            for i in range(1, number*number+1):
-                self.rows.append(i)
-                #rows.append("|")
-                
-                self.count += 1
-                if self.count == number:
-                    
-                    self.columns.append(list(self.rows))
-                    self.rows = []
-                    self.count = 0
-
-        else:
-            print("Layout type is meant to be between 3 and 6")
-            number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
+        
+        for i in range(1, self.number*self.number+1):
+            self.rows.append(i)
+            #rows.append("|")
             
-            self.layout(number, self.character)
+            self.count += 1
+            if self.count == self.number:
+                
+                self.columns.append(list(self.rows))
+                self.rows = []
+                self.count = 0
         
         
     def display(self):
@@ -76,8 +73,6 @@ class frame:
         
         for i in self.columns:
             for j in i:
-                if j == character:
-                    pass
                 if j == input:
                     index = i.index(j)
                     i[index] = character
@@ -90,12 +85,14 @@ class frame:
     def compare(self,character):
         combination_set = self.combinations() 
         count = 0
+        if len(self.user) + len(self.computer) == (self.number * self.number):
+            return "Draw"
         if self.character == character:
             for i in combination_set:
                 for j in i:
                     if j in self.user:
                         count += 1
-                if count == 3:
+                if count == self.number:
                     return "user won"
                 else:
                     count = 0
@@ -106,7 +103,7 @@ class frame:
                 for j in i:
                     if j in self.computer:
                         count += 1
-                if count == 3:
+                if count == self.number:
                     return "computer won"
                 else:
                     count = 0
@@ -114,19 +111,68 @@ class frame:
     
     def comp_move(self, difficulty):
         if difficulty == "easy":
-            pass
+            play = False
+            while not play:
+                move = random.randint(1, (self.number * self.number))            
+                if move not in self.user and move not in self.computer:
+                    play = True
+                    return move
+                    
         
         else:
             pass
     
-    
+    def verdict(self):
+        if self.compare(self.character) == "Draw":
+            os.system('cls||clear')    
+            self.display()
+            print("Its a Draw!!!")
+            return True
+        
+        elif self.compare(self.character) == "user won": 
+            os.system('cls||clear')    
+            self.display()
+            print("You win!!!")
+            return True
+
+        elif self.compare(self.character) == "computer won":
+            os.system('cls||clear')    
+            self.display()
+            print("You Loose!!!")
+            return True
+        
+        else:
+            os.system('cls||clear')    
+            return False
+            
     
 def main():
     number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
-    character = input("Which would you prefer.... 'X' or 'O' ....:").upper()
+    character = input("Which would you prefer.... 'X' or 'O' ....: ").upper()
+    play_with = input("Reply 'M' to play with me or 'P' to play with a partner: ").lower()
+    difficulty = input("Reply 'easy' For Easy Mode or 'hard' fo Hard Mode: ").lower()
     
-    game = frame()
-    game.layout(number, character)
+    while number < 3 and number > 6:
+        print("Layout type is meant to be between 3 and 6")
+        number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
+    
+    while play_with != "m" and play_with != "p":
+        os.system('cls||clear') 
+        print("You have made an error")
+        play_with = input("Reply 'm' to play with me or 'p' to play with a partner: ").lower()
+        
+    while difficulty != "easy" and difficulty != "hard":
+        os.system('cls||clear') 
+        print("You have made an error")
+        difficulty = input("Easy Mode or Hard?.... :").lower()
+        
+    if character == "X":
+        comp_character = "O"
+    else:
+        comp_character = "X"
+    
+    game = frame(number, character)
+    game.layout()
     
     game_end = False
 
@@ -140,26 +186,25 @@ def main():
             
         
         game.modify(user_input, character)
-        if game.compare(character) == "user won":
-            os.system('cls||clear')    
-            game.display()
-            print("You win!!!")
-            game_end = True
+        game_end = game.verdict()
+        if game_end == True:
             return
-        os.system('cls||clear')    
-        game.display()
         
         
         print("I am thinking")
         time.sleep(2)
-        
-        game.modify(int(input("Comp turn: ")), "O")
-        if game.compare("O") == "computer won":
-            os.system('cls||clear')    
-            game.display()
-            print("You Loose!!!")
-            game_end = True
-            return
+        if play_with == "p":
+            pass
+            game_end = game.verdict()
+            if game_end == True:
+                return
+            
+        else:
+            move = game.comp_move(difficulty)
+            game.modify(move, comp_character)
+            game_end = game.verdict()
+            if game_end == True:
+                return
         
         
         
