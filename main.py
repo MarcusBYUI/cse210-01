@@ -1,4 +1,4 @@
-from combinations import by_three, by_four, by_five, by_six
+from combinations import by_three, by_four
 import time
 import os
 import random
@@ -61,10 +61,6 @@ class frame:
             return by_three
         elif self.number == 4:
             return by_four
-        elif self.number == 5:
-            return by_five
-        elif self.number == 6:
-            return by_six
     
     
     def modify(self, input, character):
@@ -87,29 +83,30 @@ class frame:
         count = 0
         if len(self.user) + len(self.computer) == (self.number * self.number):
             return "Draw"
-        if self.character == character:
-            for i in combination_set:
-                for j in i:
-                    if j in self.user:
-                        count += 1
-                if count == self.number:
-                    return "user won"
-                else:
-                    count = 0
+        
+        for i in combination_set:
+            for j in i:
+                if j in self.user:
+                    count += 1
+            if count == self.number:
+                return "user won"
+            else:
+                count = 0
                     
-        else:
-            count = 0
-            for i in combination_set:
-                for j in i:
-                    if j in self.computer:
-                        count += 1
-                if count == self.number:
-                    return "computer won"
-                else:
-                    count = 0
+        
+        count = 0
+        for i in combination_set:
+            for j in i:
+                if j in self.computer:
+                    count += 1
+            if count == self.number:
+                return "computer won"
+            else:
+                count = 0
     
     
     def comp_move(self, difficulty):
+        combination_set = self.combinations() 
         if difficulty == "easy":
             play = False
             while not play:
@@ -120,7 +117,38 @@ class frame:
                     
         
         else:
-            pass
+            #i want to check if there is a game where the computer can complete and win
+
+            if len(self.computer) >= 2:
+                
+                for i in combination_set:
+                    new_list = set(i).intersection(self.computer)
+                    if len(new_list) >= (self.number - 1):
+                        check =  all(item in i for item in new_list)
+                        if check is True:
+                            for j in i:
+                                if j not in self.computer and j not in self.user:
+                                    return j
+                                
+            #i want to check if there is a move the user is currently making that i need to block          
+            
+            if len(self.user) >= 2:
+                for i in combination_set:
+                    new_list = set(i).intersection(self.user)
+                    if len(new_list) >= (self.number - 1):
+                        check =  all(item in i for item in new_list)
+                        if check is True:
+                            for j in i:
+                                if j not in self.computer and j not in self.user:
+                                    return j
+            
+            # Will just play a random move if there is nothing to block or win                               
+            play = False
+            while not play:
+                move = random.randint(1, (self.number * self.number))            
+                if move not in self.user and move not in self.computer:
+                    play = True
+                    return move     
     
     def verdict(self):
         if self.compare(self.character) == "Draw":
@@ -147,66 +175,77 @@ class frame:
             
     
 def main():
-    number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
-    character = input("Which would you prefer.... 'X' or 'O' ....: ").upper()
-    play_with = input("Reply 'M' to play with me or 'P' to play with a partner: ").lower()
-    difficulty = input("Reply 'easy' For Easy Mode or 'hard' fo Hard Mode: ").lower()
     
-    while number < 3 and number > 6:
-        print("Layout type is meant to be between 3 and 6")
-        number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
-    
-    while play_with != "m" and play_with != "p":
-        os.system('cls||clear') 
-        print("You have made an error")
-        play_with = input("Reply 'm' to play with me or 'p' to play with a partner: ").lower()
+    try:
+        number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 and 4: "))
+        character = input("Which would you prefer.... 'X' or 'O' ....: ").upper()
+        difficulty = input("Reply 'easy' For Easy Mode or 'hard' fo Hard Mode: ").lower()
         
-    while difficulty != "easy" and difficulty != "hard":
-        os.system('cls||clear') 
-        print("You have made an error")
-        difficulty = input("Easy Mode or Hard?.... :").lower()
-        
-    if character == "X":
-        comp_character = "O"
-    else:
-        comp_character = "X"
-    
-    game = frame(number, character)
-    game.layout()
-    
-    game_end = False
-
-    while not game_end:
-        
-        game.display()
-        user_input = int(input("Reply with a tile number: "))
-        while user_input < 0 or user_input > (number*number):
-            print("Number is put of bounds")
-            user_input = int(input("Reply with a tile number: "))
+        while number < 3 and number > 4:
+            print("Layout type is meant to be between 3 and 6")
+            number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
             
+        while difficulty != "easy" and difficulty != "hard":
+            os.system('cls||clear') 
+            print("You have made an error")
+            difficulty = input("Easy Mode or Hard?.... :").lower()
+            
+        if character == "X":
+            comp_character = "O"
+        else:
+            comp_character = "X"
         
-        game.modify(user_input, character)
-        game_end = game.verdict()
-        if game_end == True:
-            return
+        game = frame(number, character)
+        game.layout()
         
-        
-        print("I am thinking")
-        time.sleep(2)
-        if play_with == "p":
-            pass
+        game_end = False
+
+        while not game_end:
+            
+            game.display()
+            user_input = int(input("Reply with a tile number: "))
+            while user_input < 0 or user_input > (number*number):
+                print("Number is put of bounds")
+                user_input = int(input("Reply with a tile number: "))
+                
+            while user_input in game.user or user_input in game.computer:
+                print("Number is taken")
+                user_input = int(input("Reply with a tile number: "))            
+                
+            
+            game.modify(user_input, character)
             game_end = game.verdict()
             if game_end == True:
                 return
             
-        else:
+            
+            print("I am thinking")
+            time.sleep(2)
+
             move = game.comp_move(difficulty)
             game.modify(move, comp_character)
             game_end = game.verdict()
             if game_end == True:
                 return
         
+    #catch the ValueError type 
+    except ValueError as value_err:
+        print(type(value_err).__name__, value_err, sep=": ")
+        print(f"The amount {value_err} inputed is not valid, \
+            \nplease run the program again and try a valid number")    
         
+    
+    # catch the filenotfounderror type
+    except FileNotFoundError as not_found_err:
+        print(type(not_found_err).__name__, not_found_err, sep=": ")
+        print(f"The file  does not exist in this directory \
+            \nRun the program again using a file name that exists")
+        
+    # catch the permissionerror type    
+    except PermissionError as perm_err:
+        print(type(perm_err).__name__, perm_err, sep=": ")
+        print(f"You do not have permission to open the file \
+            \nPlease run the program again and use a file within your permission rights")    
         
         
         
