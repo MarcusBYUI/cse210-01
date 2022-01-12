@@ -1,11 +1,13 @@
 from combinations import by_three, by_four
+from art import logo
 import time
 import os
 import random
 
-class frame:
+class board:
     
     def __init__(self, number, character):
+        """Funtion initializes with the class the needed variables"""
         self.character = character
         self.number = number
         
@@ -57,6 +59,8 @@ class frame:
 
 
     def combinations(self):
+        """returns win combinations from the combination file
+            Win combinations is necesary to decide a winner and also to get computer to play"""
         if self.number == 3:
             return by_three
         elif self.number == 4:
@@ -78,12 +82,15 @@ class frame:
                         self.computer.append(input)
 
     
-    def compare(self,character):
+    def compare(self):
+        """Checks the board after each turn to find a draw or a win"""
         combination_set = self.combinations() 
         count = 0
+        # checks if it's draw
         if len(self.user) + len(self.computer) == (self.number * self.number):
             return "Draw"
         
+        # checks if user has a complete set
         for i in combination_set:
             for j in i:
                 if j in self.user:
@@ -93,7 +100,7 @@ class frame:
             else:
                 count = 0
                     
-        
+        # checks if computer has a complete set
         count = 0
         for i in combination_set:
             for j in i:
@@ -106,7 +113,15 @@ class frame:
     
     
     def comp_move(self, difficulty):
+        """Function decides computer move based on difficulty choosen between easy and hard
+        
+            Easy Mode: returns a random number that has not been previosly played but present on the board
+            
+            Hard Mode: Checks if the computer has an incomplete game to win if not,
+                        It checks if the user has a pending game to win then blocks the game, if not
+                        It returns a random number like the easy mode"""
         combination_set = self.combinations() 
+        #easy mode
         if difficulty == "easy":
             play = False
             while not play:
@@ -150,41 +165,58 @@ class frame:
                     play = True
                     return move     
     
+    
     def verdict(self):
-        if self.compare(self.character) == "Draw":
-            os.system('cls||clear')    
+        """A simple funtion that takes output from the compare funtion then displays the appropriate result to the screen"""
+        if self.compare() == "Draw":
+            os.system('cls||clear')
+            #print logo
+            print(logo)
+            print()    
             self.display()
             print("Its a Draw!!!")
             return True
         
-        elif self.compare(self.character) == "user won": 
-            os.system('cls||clear')    
+        elif self.compare() == "user won": 
+            os.system('cls||clear')
+            #print logo
+            print(logo)
+            print()     
             self.display()
             print("You win!!!")
             return True
 
-        elif self.compare(self.character) == "computer won":
-            os.system('cls||clear')    
+        elif self.compare() == "computer won":
+            os.system('cls||clear')   
+            #print logo
+            print(logo)
+            print()  
             self.display()
             print("You Loose!!!")
             return True
         
         else:
-            os.system('cls||clear')    
+            os.system('cls||clear')  
+            #print logo
+            print(logo)
+            print()  
             return False
             
     
 def main():
+    #print logo
+    print(logo)
+    print()
     
     try:
         number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 and 4: "))
         character = input("Which would you prefer.... 'X' or 'O' ....: ").upper()
         difficulty = input("Reply 'easy' For Easy Mode or 'hard' fo Hard Mode: ").lower()
-        
+        #input check
         while number < 3 and number > 4:
             print("Layout type is meant to be between 3 and 6")
             number = int(input("Input the layout type '3 for 3x3','4 for 4x4'. Your options are 3 through 6: "))
-            
+        #input check    
         while difficulty != "easy" and difficulty != "hard":
             os.system('cls||clear') 
             print("You have made an error")
@@ -195,33 +227,37 @@ def main():
         else:
             comp_character = "X"
         
-        game = frame(number, character)
+        #initiating an instance of the game class and a layout based on the user
+        game = board(number, character)
         game.layout()
         
+        #loop that keeps the game going till a draw or winner is found
         game_end = False
-
         while not game_end:
             
             game.display()
             user_input = int(input("Reply with a tile number: "))
+            #input check
             while user_input < 0 or user_input > (number*number):
                 print("Number is put of bounds")
                 user_input = int(input("Reply with a tile number: "))
                 
+            #input check
             while user_input in game.user or user_input in game.computer:
                 print("Number is taken")
                 user_input = int(input("Reply with a tile number: "))            
                 
-            
+            #modification of the board called based on inout
             game.modify(user_input, character)
             game_end = game.verdict()
             if game_end == True:
                 return
             
-            
+            #computer thinks and delays for 2 sec
             print("I am thinking")
             time.sleep(2)
 
+            #computers move based on difficulty is called from the game class
             move = game.comp_move(difficulty)
             game.modify(move, comp_character)
             game_end = game.verdict()
@@ -247,9 +283,7 @@ def main():
         print(f"You do not have permission to open the file \
             \nPlease run the program again and use a file within your permission rights")    
         
-        
-        
-        
+    
     
 if __name__ == '__main__':
     main()
