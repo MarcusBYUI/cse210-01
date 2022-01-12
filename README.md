@@ -1,11 +1,6 @@
 # cse210-01
 Tic-Tac-Toe
 
- ____  __  ___    ____  __    ___    ____  __  ____ 
-(_  _)(  )/ __)  (_  _)/ _\  / __)  (_  _)/  \(  __)
-  )(   )(( (__     )( /    \( (__     )( (  O )) _) 
- (__) (__)\___)   (__)\_/\_/ \___)   (__) \__/(____)
-
 
 Tic-Tac-Toe is a game in which two players seek in alternate turns to complete a row, a column, or a diagonal with either three x's or three o's drawn in the spaces of a grid of nine squares.
 
